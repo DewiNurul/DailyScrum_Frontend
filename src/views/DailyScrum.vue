@@ -96,12 +96,13 @@ module.exports = {
     return {
       search: "",
       id: "",
-      id_users: "1",
+      id_users: "this.id_users",
       team: "",
       activity_yesterday: "",
       activity_today: "",
       problem_yesterday: "",
       solution: "",
+      tanggal:"",
       action: "",
       message: "",
       currentPage: 1,
@@ -109,33 +110,68 @@ module.exports = {
       perPage: 10,
       key: "",
       daily_scrum: [],
-      fields: ["activity_yesterday","activity_today","problem_yesterday","solution","action"],
+      fields: ["tanggal","activity_yesterday","activity_today","problem_yesterday","solution","action"],
     }
   },
 
   methods: {
     getData : function(){
-      let conf = { headers: { "Authorization" : 'Bearer ' + this.key } };
+      let conf = { headers: { Authorization: "Bearer " + this.key } };
       let offset = (this.currentPage - 1) * this.perPage;
-      this.$bvToast.show("loadingToast");
-      this.axios.get("/daily_scrum/" + this.perPage + "/" + offset, conf)
-      .then(response => {
-        if(response.data.status == 1){
-          this.$bvToast.hide("loadingToast");
-          this.daily_scrum = response.data.daily_scrum;
-          this.rows = response.data.count;
-          console.log(this.daily_scrum);
-        } else {
-          this.$bvToast.hide("loadingToast");
-          this.message = "Gagal menampilkan data daily scrum."
-          this.$bvToast.show("message");
-          this.$router.push({name: "login"})
-        }
+ 
+       this.axios
+        .get("/login/check", conf)
+        .then(response => {
+          this.id_users = response.data.user.id;
+          this.axios.get("/daily_scrum/" + this.perPage + "/" + offset + "/" + response.data.user.id, conf)
+            .then(response => {
+              this.status = response.data.status;
+              if (response.data.status == 1) {
+                this.daily_scrum = response.data.daily_scrum;
+                console.log(response.data.count);
+     
+                if (response.data.count == 0) {
+                  this.status = 0;
+          
+                }
+              } else {
+                console.log("Data Tidak Ditemukan");
+          
+              }
+            })
+            // .catch(error => {
+            //   console.log(error);
+            //   this.loading = false;
+            // });
+        })
+        // .catch(error => {
+        //   console.log(error);
+        //   this.loading = false;
+        // });
+
+
+      // let conf = { headers: { "Authorization" : 'Bearer ' + this.key } };
+      // let offset = (this.currentPage - 1) * this.perPage;
+      // // this.$bvToast.show("loadingToast");
+      
+      // this.axios.get("/daily_scrum/" + this.perPage + "/" + offset, conf)
+      // .then(response => {
+      //   if(response.data.status == 1){
+      //     this.$bvToast.hide("loadingToast");
+      //     this.daily_scrum = response.data.daily_scrum;
+      //     this.rows = response.data.count;
+      //     console.log(this.daily_scrum);
+      //   } else {
+      //     this.$bvToast.hide("loadingToast");
+      //     this.message = "Gagal menampilkan data daily scrum."
+      //     this.$bvToast.show("message");
+      //     this.$router.push({name: "login"})
+      //   }
         
-      })
-      .catch(error => {
-        console.log(error);
-      });
+      // })
+      // .catch(error => {
+      //   console.log(error);
+      // });
     },
 
     pagination : function(){
@@ -161,7 +197,7 @@ module.exports = {
       if(this.action === "insert"){
         let form = new FormData();
         form.append("id", this.id);
-        form.append("id_users", this.id_users);
+        // form.append("id_users", this.id_users);
         form.append("team", this.team);
         form.append("activity_yesterday", this.activity_yesterday);
         form.append("activity_today", this.activity_today);
@@ -190,20 +226,20 @@ module.exports = {
       //     problem_yesterday: this.problem_yesterday,
       //     solution: this.solution,
       //   }
-        // this.axios.put("/petugas/" + this.id, form, conf)
-        // .then(response => {
-        //   this.$bvToast.hide("loadingToast");
-        //   if(this.search == ""){
-        //     this.getData();
-        //   } else {
-        //     this.searching();
-        //   }
-        //   this.message = response.data.message;
-        //   this.$bvToast.show("message");
-        // })
-        // .catch(error => {
-        //   console.log(error);
-        // });
+      //   this.axios.put("/daily_scrum/" + this.id, form, conf)
+      //   .then(response => {
+      //     this.$bvToast.hide("loadingToast");
+      //     if(this.search == ""){
+      //       this.getData();
+      //     } else {
+      //       this.searching();
+      //     }
+      //     this.message = response.data.message;
+      //     this.$bvToast.show("message");
+      //   })
+      //   .catch(error => {
+      //     console.log(error);
+      //   });
       }
     },
 

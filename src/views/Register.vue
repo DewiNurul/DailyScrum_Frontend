@@ -95,9 +95,15 @@ export default {
             let email = this.email //let itu variabel baru
             let password = this.password
             let password_verify = this.password_verify
-            this.$store.dispatch('register', { firstname, lastname, email, password, password_verify })
+            this.$store.dispatch('register', { 
+              firstname,
+              lastname, 
+              email,
+              password,
+              password_verify,
+              })
             .then(() => this.$router.push('/login'))
-            .catch(err => console.log(err))
+            .catch(err => console.log(err));
         }
     }
 }
